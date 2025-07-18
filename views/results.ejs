@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Results</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .category { margin-top: 20px; font-size: 1.2em; font-weight: bold; }
+    .fail { color: red; }
+    .pass { color: green; }
+  </style>
+</head>
+<body>
+  <h1>Website: <%= data[0]?.website || 'Unknown' %></h1>
+
+  <% const grouped = {}; data.forEach(d => (grouped[d.category] = grouped[d.category] || []).push(d)); %>
+
+  <% for (let category in grouped) { %>
+    <div class="category"><%= category %></div>
+    <ul>
+      <% grouped[category].forEach(test => { %>
+        <li class="<%= test.status %>">
+          <strong><%= test.test_case %></strong> — <%= test.description %>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "website": "https://yogku.github.io/",
+  "customTests": {
+    "api": [
+      {
+        "endpoint": "/api/test",
+        "method": "GET",
+        "authRequired": false
+      }
+    ]
+  }
+}

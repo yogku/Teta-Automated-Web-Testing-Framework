@@ -43,8 +43,9 @@ To set up the project locally:
 1.  **Clone the repository:**
 
     ```bash
-    git clone [https://github.com/yogku/Teta-Automated-Testing-Framework.git](https://github.com/yogku/Teta-Automated-Testing-Framework.git)
+    git clone https://github.com/yogku/Teta-Automated-Testing-Framework.git
     cd api-web-testing-framework
+
     ```
 
 2.  **Initialize Project & Install dependencies:**
@@ -57,7 +58,7 @@ To set up the project locally:
 
 ## Usage
 
-1.  **Configure your tests:** Edit the `config.json` file to define your API endpoints, forms, and specific test scenarios.
+1.  **Configure your tests:** Edit the `testConfig.json` file to define your API endpoints, forms, and specific test scenarios.
 
 2.  **Run the tests:**
     Start the Node.js server:
@@ -86,7 +87,7 @@ The `config.json` file is central to defining your test suite. It allows you to 
 
 ```json
 {
-  "website": "[https://yogku.github.io/](https://yogku.github.io/)",
+  "website": "https://yogku.github.io/",
   "customTests": {
     "api": [
       {
@@ -98,6 +99,7 @@ The `config.json` file is central to defining your test suite. It allows you to 
   }
 }
 
+```
 
 ## Reporting
 

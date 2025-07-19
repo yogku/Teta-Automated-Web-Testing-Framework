@@ -34,7 +34,7 @@ This framework aims to provide comprehensive testing capabilities, including:
 
 ## How It Works
 
-The framework operates by reading test configurations from a `config.json` file. This file allows users to define custom test cases, API endpoints, and validation rules. Once the tests are executed (simulated in the current web-based version), the results are compiled and presented in an interactive web report, providing a clear overview of passed and failed tests.
+The framework operates by reading test configurations from a `testConfig.json` file. This file allows users to define custom test cases, API endpoints, and validation rules. Once the tests are executed (simulated in the current web-based version), the results are compiled and presented in an interactive web report, providing a clear overview of passed and failed tests.
 
 ## Installation
 
@@ -69,9 +69,9 @@ To set up the project locally:
 
 3.  **View the report:** Open your web browser and navigate to `http://localhost:3000/report.html` (or `index.html` if you rename it) to see the generated test results.
 
-## Configuration (`config.json`)
+## Configuration (`testConfig.json`)
 
-The `config.json` file is central to defining your test suite. It allows you to specify:
+The `testConfig.json` file is central to defining your test suite. It allows you to specify:
 
 * **`apiTests`**: An array of objects, each defining an API endpoint to test, including method (GET/POST), URL, headers, payload, and expected responses.
 
@@ -83,7 +83,7 @@ The `config.json` file is central to defining your test suite. It allows you to 
 
 * **`customTests`**: An array for defining highly specific, user-defined test cases.
 
-**Example `config.json` structure:**
+**Example `testConfig.json` structure:**
 
 ```json
 {

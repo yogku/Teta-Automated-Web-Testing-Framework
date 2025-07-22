@@ -133,7 +133,7 @@ After test execution, a detailed web report is generated. This report provides:
 ## contributors
 
 - Navdeep Kaur
-- Amish
+- Amisha
  
 
 ---

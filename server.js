@@ -12,7 +12,7 @@ try {
   config = require("./config/testConfig.json");
 } catch (err) {
   console.error("Failed to load config:", err.message);
-  config = {}; // fallback to empty config
+  config = {}; // config to use if failed to load configfile
 }
 
 const app = express();
@@ -61,10 +61,10 @@ app.get("/run-tests", async (req, res) => {
     results.push({ category: "Performance", error: err.message });
   }
 
-  // Create results dur if not exists
+  // Create results dir if not exists
   const resultsDir = path.join(__dirname, "results");
   if (!fs.existsSync(resultsDir)) {
-    fs.mkdirSync(resultsDir, { recursive: true }); // Creates nested directories if needed
+    fs.mkdirSync(resultsDir, { recursive: true });
   }
 
   try {

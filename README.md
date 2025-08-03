@@ -87,12 +87,13 @@ The `testConfig.json` file is central to defining your test suite. It allows you
 
 ```json
 {
-  "website": "https://yogku.github.io/",
+  "frontendUrl": "http://localhost:5501",
+  "backendUrl": "http://localhost:3008",
   "customTests": {
     "api": [
       {
-        "endpoint": "/api/test",
-        "method": "GET",
+        "endpoint": "/register",
+        "method": "POST",
         "authRequired": false
       }
     ]
@@ -132,9 +133,8 @@ After test execution, a detailed web report is generated. This report provides:
 
 ## contributors
 
-- Navdeep Kaur
-- Amish
- 
+- [Navdeep Kaur](https://github.com/Navdeepdhillon17)
+- [Amisha](https://github.com/amisha03825)
 
 ---
 

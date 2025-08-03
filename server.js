@@ -68,7 +68,15 @@ app.get("/run-tests", async (req, res) => {
   }
 
   try {
+    // Create results dir if it does not exist
+    const resultsDir = path.join(__dirname, "results");
+    if (!fs.existsSync(resultsDir)) {
+      fs.mkdirSync(resultsDir, { recursive: true });
+    }
+    
+    // Save the results to the file inside the new directory
     fs.writeFileSync(path.join(resultsDir, "result-log.json"), JSON.stringify(results, null, 2));
+
   } catch (err) {
     console.error("Failed to save results:", err.message);
     return res.status(500).send("Error writing results to file.");

@@ -1,12 +1,43 @@
 {
-  "website": "https://yogku.github.io/",
+  "backendUrl": "http://localhost:3001",
+  "frontendUrl": "http://localhost:5501",
   "customTests": {
     "api": [
       {
-        "endpoint": "/api/test",
-        "method": "GET",
+        "endpoint": "/register",
+        "method": "POST",
+        "authRequired": false
+      },
+      {
+        "endpoint": "/login",
+        "method": "POST",
         "authRequired": false
       }
+    ],
+    "formTests": [
+      {
+        "testName": "Form Test (Success): Register user with valid data",
+        "endpoint": "/register",
+        "method": "POST",
+        "payload": { "username": "new_valid_user", "password": "Password123" },
+        "expectedStatus": 201
+      },
+      {
+        "testName": "Form Test (Failure): Register with a short password",
+        "endpoint": "/register",
+        "method": "POST",
+        "payload": { "username": "shortpass", "password": "123" },
+        "expectedStatus": 400
+      },
+      {
+  "testName": "Form Test (Failure): Register user with missing password",
+  "endpoint": "/register",
+  "method": "POST",
+  "payload": {
+    "username": "mikasa"
+  },
+  "expectedStatus": 400
+}
     ]
   }
 }

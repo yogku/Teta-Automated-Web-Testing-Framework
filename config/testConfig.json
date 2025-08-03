@@ -3,6 +3,16 @@
   "frontendUrl": "http://localhost:5501",
   "customTests": {
     "api": [
+      {
+        "endpoint": "/register",
+        "method": "POST",
+        "authRequired": false
+      },
+      {
+        "endpoint": "/login",
+        "method": "POST",
+        "authRequired": false
+      }
     ],
     "formTests": [
       {

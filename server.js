@@ -6,6 +6,7 @@ const apiTests = require("./tests/apiTests");
 const formTests = require("./tests/formTests");
 const securityTests = require("./tests/securityTests");
 const performanceTests = require("./tests/performanceTests");
+const seoAccessibilityTests = require("./tests/seoAccessibilityTests");
 
 let config;
 try {
@@ -59,6 +60,14 @@ app.get("/run-tests", async (req, res) => {
   } catch (err) {
     console.error("Performance tests failed:", err.message);
     results.push({ category: "Performance", error: err.message });
+  }
+  try {
+    if (typeof seoAccessibilityTests === "function") {
+      results.push(...(await seoAccessibilityTests(config)));
+    }
+  } catch (err) {
+    console.error("SEO & Accessibility tests failed:", err.message);
+    results.push({ category: "SEO & Accessibility", error: err.message });
   }
 
   // Create results dur if not exists

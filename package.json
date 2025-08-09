@@ -6,10 +6,9 @@
     "test": "tests"
   },
   "scripts": {
-  "start": "node server.js",
-  "dev": "nodemon server.js"
-}
-,
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
   "keywords": [],
   "author": "",
   "license": "MIT",
@@ -17,6 +16,7 @@
   "dependencies": {
     "axios": "^1.10.0",
     "body-parser": "^2.2.0",
+    "cheerio": "^1.1.2",
     "ejs": "^3.1.10",
     "express": "^5.1.0"
   },

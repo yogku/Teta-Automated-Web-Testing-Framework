@@ -1,6 +1,7 @@
 {
-  "backendUrl": "http://localhost:3001",
+  "backendUrl": "http://localhost:3008",
   "frontendUrl": "http://localhost:5501",
+  "homepageUrl": "http://127.0.0.1:5501/auth.html",
   "customTests": {
     
     "api": [
@@ -21,11 +22,11 @@
         "testName": "Form Test (Success): Register user with valid data",
         "endpoint": "/register",
         "method": "POST",
-        "payload": { "username": "new_valid_user", "password": "Password123" },
+        "payload": { "username": "new_valid_user3", "password": "Password123" },
         "expectedStatus": 201
       },
       {
-        "testName": "Form Test (Failure): Register with a short password",
+        "testName": "Form Test (Fail): Register with a short password",
         "endpoint": "/register",
         "method": "POST",
         "payload": { "username": "shortpass", "password": "123" },
@@ -39,6 +40,6 @@
         "expectedStatus": 400
       }
     ]
-    
+ 
   }
 }

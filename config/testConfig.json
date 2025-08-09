@@ -4,6 +4,16 @@
   "homepageUrl": "http://127.0.0.1:5501/auth.html",
   "customTests": {
     "api": [
+      {
+        "endpoint": "/register",
+        "method": "POST",
+        "authRequired": false
+      },
+      {
+        "endpoint": "/login",
+        "method": "POST",
+        "authRequired": false
+      }
     ],
     "formTests": [
       {

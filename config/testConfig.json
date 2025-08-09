@@ -3,6 +3,7 @@
   "frontendUrl": "http://localhost:5501",
   "homepageUrl": "http://127.0.0.1:5501/auth.html",
   "customTests": {
+    
     "api": [
       {
         "endpoint": "/register",
@@ -15,6 +16,7 @@
         "authRequired": false
       }
     ],
+
     "formTests": [
       {
         "testName": "Form Test (Success): Register user with valid data",
@@ -31,14 +33,13 @@
         "expectedStatus": 400
       },
       {
-  "testName": "Form Test (Fail): Register user with missing password",
-  "endpoint": "/register",
-  "method": "POST",
-  "payload": {
-    "username": "mikasa"
-  },
-  "expectedStatus": 400
-}
+        "testName": "Form Test (Failure): Register user with missing password",
+        "endpoint": "/register",
+        "method": "POST",
+        "payload": {"username": "mikasa"},
+        "expectedStatus": 400
+      }
     ]
+ 
   }
 }

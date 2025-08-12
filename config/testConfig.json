@@ -6,16 +6,91 @@
     
     "api": [
       {
+        "testName": "Test 1: Register new user (Success)",
         "endpoint": "/register",
         "method": "POST",
+        "payload": {
+          "username": "{{unique_username}}",
+          "password": "{{test_password}}"
+        },
+        "expectedStatus": 201,
         "authRequired": false
       },
       {
+        "testName": "Test 2: Login with valid credentials (Success)",
         "endpoint": "/login",
         "method": "POST",
+        "payload": {
+          "username": "{{unique_username}}",
+          "password": "{{test_password}}"
+        },
+        "expectedStatus": 200,
         "authRequired": false
+      },
+      {
+        "testName": "Test 3: Get user cart with valid token",
+        "endpoint": "/cart/:userId",
+        "method": "GET",
+        "expectedStatus": 200,
+        "authRequired": true
+      },
+      {
+        "testName": "Test 4: Get user cart without token",
+        "endpoint": "/cart/:userId",
+        "method": "GET",
+        "expectedStatus": 401,
+        "authRequired": false
+      },
+      {
+        "testName": "Test 5: Add item to cart with valid token",
+        "endpoint": "/cart/:userId/items",
+        "method": "POST",
+        "payload": {
+          "productId": "60c72b2f5f1b2c001c8e4a9e",
+          "quantity": 2,
+          "price": 19.99
+        },
+        "expectedStatus": 200,
+        "authRequired": true
+      },
+      {
+        "testName": "Test 6: Add item to cart without token",
+        "endpoint": "/cart/:userId/items",
+        "method": "POST",
+        "payload": {
+          "productId": "60c72b2f5f1b2c001c8e4a9e",
+          "quantity": 1,
+          "price": 19.99
+        },
+        "expectedStatus": 401,
+        "authRequired": false
+      },
+      {
+        "testName": "Test 7: Update item quantity in cart with valid token",
+        "endpoint": "/cart/:userId/items/:itemId",
+        "method": "PUT",
+        "payload": {
+          "quantity": 5
+        },
+        "expectedStatus": 200,
+        "authRequired": true
+      },
+      {
+        "testName": "Test 8: Place an order from the cart",
+        "endpoint": "/orders",
+        "method": "POST",
+        "expectedStatus": 201,
+        "authRequired": true
+      },
+      {
+        "testName": "Test 9: Delete item from cart with valid token",
+        "endpoint": "/cart/:userId/items/:itemId",
+        "method": "DELETE",
+        "expectedStatus": 200,
+        "authRequired": true
       }
     ],
+  
 
     "formTests": [
       {

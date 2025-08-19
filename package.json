@@ -21,6 +21,7 @@
     "express": "^5.1.0"
   },
   "devDependencies": {
+    "allure-commandline": "^2.34.1",
     "nodemon": "^3.1.10"
   }
 }

@@ -1,24 +1,42 @@
 const axios = require("axios");
 
+/**
+ * Generates a unique username and a default password for each test run.
+ * @returns {{username: string, password: string}}
+ */
+function generateUniqueUser() {
+  const username = `test_user_${Date.now()}`;
+  // Use a password that passes your backend validation
+  const password = "Password123"; 
+  return { username, password };
+}
+
 module.exports = async function formTests(config) {
   const results = [];
-  // Reads from the new nested path
   const tests = config.customTests ? config.customTests.formTests : [];
 
-  if (!tests || !Array.isArray(tests)) {
-    return results;
-  }
-
   for (const test of tests) {
-    // Uses the new backendUrl variable
     const url = config.backendUrl + test.endpoint;
+    // Create a copy of the payload to avoid changing the original
+    let finalPayload = JSON.parse(JSON.stringify(test.payload));
+
+    // --- ADD THIS LOGIC ---
+    // Check for and replace the placeholder
+    if (finalPayload.username === "{{unique_username}}") {
+      const dynamicUser = generateUniqueUser();
+      finalPayload.username = dynamicUser.username;
+      finalPayload.password = dynamicUser.password;
+    }
+    // ----------------------
+
     try {
       const res = await axios({
         method: "POST",
         url: url,
-        data: test.payload,
+        data: finalPayload, // Use the final payload with the replaced username
       });
 
+      // ... The rest of your pass/fail logic remains the same ...
       if (res.status === test.expectedStatus) {
         results.push({
           website: config.backendUrl,
@@ -37,23 +55,23 @@ module.exports = async function formTests(config) {
         });
       }
     } catch (err) {
-      if (err.response && err.response.status === test.expectedStatus) {
-        results.push({
-          website: config.backendUrl,
-          category: "Form Validation",
-          test_case: test.testName,
-          status: "pass",
-          description: `Correctly received expected error status: ${err.response.status}`,
-        });
-      } else {
-        results.push({
-          website: config.backendUrl,
-          category: "Form Validation",
-          test_case: test.testName,
-          status: "fail",
-          description: err.message,
-        });
-      }
+        if (err.response && err.response.status === test.expectedStatus) {
+            results.push({
+              website: config.backendUrl,
+              category: "Form Validation",
+              test_case: test.testName,
+              status: "pass",
+              description: `Correctly received expected error status: ${err.response.status}`,
+            });
+        } else {
+            results.push({
+              website: config.backendUrl,
+              category: "Form Validation",
+              test_case: test.testName,
+              status: "fail",
+              description: err.message,
+            });
+        }
     }
   }
 

@@ -1,7 +1,15 @@
 {
   "backendUrl": "http://localhost:3008",
-  "frontendUrl": "http://localhost:5501",
-  "homepageUrl": "http://127.0.0.1:5501/auth.html",
+  "pagesToTest": {
+    "public": [
+      "http://127.0.0.1:5501/index.html",
+      "http://127.0.0.1:5501/auth.html"
+    ],
+    "private": [
+      "http://127.0.0.1:5501/cart.html",
+      "http://127.0.0.1:5501/checkout.html"
+    ]
+  },
   "customTests": {
     
     "api": [
@@ -97,21 +105,29 @@
         "testName": "Form Test (Success): Register user with valid data",
         "endpoint": "/register",
         "method": "POST",
-        "payload": { "username": "new_valid_user3", "password": "Password123" },
+         "payload": {
+          "username": "{{unique_username}}",
+          "password": "{{test_password}}"
+        },
         "expectedStatus": 201
       },
       {
         "testName": "Form Test (Fail): Register with a short password",
         "endpoint": "/register",
         "method": "POST",
-        "payload": { "username": "shortpass", "password": "123" },
+        "payload": {
+          "username": "testuser_short_password",
+          "password": "shor"
+        },
         "expectedStatus": 400
       },
       {
         "testName": "Form Test (Failure): Register user with missing password",
         "endpoint": "/register",
         "method": "POST",
-        "payload": {"username": "mikasa"},
+        "payload": {
+          "username": "testuser_no_password"
+        },
         "expectedStatus": 400
       }
     ]

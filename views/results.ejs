@@ -4,25 +4,50 @@
   <title>Test Results</title>
   <style>
     body { font-family: sans-serif; padding: 20px; }
-    .category { margin-top: 20px; font-size: 1.2em; font-weight: bold; }
+    .page-heading { margin-top: 30px; border-bottom: 2px solid black; padding-bottom: 5px; font-size: 1.5em; }
+    .category-heading { margin-top: 15px; margin-left: 10px; font-size: 1.2em; font-weight: bold; }
+    ul { list-style-type: none; padding-left: 20px; }
+    li { margin-bottom: 5px; }
     .fail { color: red; }
     .pass { color: green; }
   </style>
 </head>
 <body>
-  <h1>Website: <%= data[0]?.website || 'Unknown' %></h1>
+  <h1>Test Report</h1>
 
-  <% const grouped = {}; data.forEach(d => (grouped[d.category] = grouped[d.category] || []).push(d)); %>
+  <% /* Step 1: Group results by page URL */ %>
+  <% const pages = {}; %>
+  <% data.forEach(test => { %>
+    <% const pageUrl = test.website || 'General Tests'; %>
+    <% if (!pages[pageUrl]) { pages[pageUrl] = []; } %>
+    <% pages[pageUrl].push(test); %>
+  <% }); %>
 
-  <% for (let category in grouped) { %>
-    <div class="category"><%= category %></div>
-    <ul>
-      <% grouped[category].forEach(test => { %>
-        <li class="<%= test.status %>">
-          <strong><%= test.test_case %></strong> — <%= test.description %>
-        </li>
-      <% }) %>
-    </ul>
+  <% /* Step 2: Loop through each page group */ %>
+  <% for (const pageUrl in pages) { %>
+    <div class="page-heading">Page: <%= pageUrl %></div>
+
+    <% /* Step 3: Group the tests for THIS page by category */ %>
+    <% const categories = {}; %>
+    <% pages[pageUrl].forEach(test => { %>
+        <% const category = test.category || 'Other'; %>
+        <% if (!categories[category]) { categories[category] = []; } %>
+        <% categories[category].push(test); %>
+    <% }); %>
+    
+    <% /* Step 4: Loop through each category for this page */ %>
+    <% for (const category in categories) { %>
+        <div class="category-heading"><%= category %></div>
+        <ul>
+            <% /* Step 5: List the tests in that category */ %>
+            <% categories[category].forEach(test => { %>
+                <li class="<%= test.status %>">
+                    <strong><%= test.test_case || test.testName %>:</strong>
+                    <%= test.description || test.details || test.error %>
+                </li>
+            <% }); %>
+        </ul>
+    <% } %>
   <% } %>
 </body>
 </html>

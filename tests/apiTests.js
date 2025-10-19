@@ -50,7 +50,7 @@ async function testRateLimiting(url, numRequests) {
 module.exports = async function apiTests(config) {
   const results = [];
   const testData = {};
-  const { backendUrl, customTests } = config; // Removed frontendUrl as it's not needed here
+  const { backendUrl, customTests } = config; 
   const { username, password } = generateUniqueUser();
 
   console.log("--- Starting API Tests from Config ---");
@@ -91,14 +91,15 @@ module.exports = async function apiTests(config) {
     testResult.category = "API";
     results.push(testResult);
 
+    // Capture token and user ID from the *actual test result*
     if (testCase.testName === "Test 2: Login with valid credentials" && testResult.status === "pass") {
-      try {
-        // The userId and token must be captured from the *response* of the login test.
-        const loginRes = await axios.post(fullUrl, payload);
-        testData.accessToken = loginRes.data.accessToken;
-        testData.userId = loginRes.data.userId;
-      } catch (err) {
-        console.error("Failed to retrieve token after successful login test.");
+     
+      if (testResult.data && testResult.data.accessToken && testResult.data.userId) {
+        testData.accessToken = testResult.data.accessToken;
+        testData.userId = testResult.data.userId;
+        console.log(`--- Captured accessToken and userId for subsequent tests ---`);
+      } else {
+        console.error("Login test passed, but response data (accessToken/userId) was not found in testResult.");
       }
     }
   }

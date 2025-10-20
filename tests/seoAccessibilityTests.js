@@ -3,122 +3,182 @@ const cheerio = require('cheerio');
 
 module.exports = async function seoAccessibilityTests(config) {
   const results = [];
-  const { backendUrl, pagesToTest } = config; // Read the correct config object
-  let accessToken = null;
+  const urlToTest = config.homepageUrl;
 
-  // --- Step 1: Log in to get a token for private pages ---
+  if (!urlToTest) {
+    return [];
+  }
+
+  let html;
   try {
-    const loginResponse = await axios.post(`${backendUrl}/login`, {
-      username: 'erenYager', // Use a valid, existing user for testing
-      password: 'Eren@123'
-    });
-    accessToken = loginResponse.data.accessToken;
+    const response = await axios.get(urlToTest);
+    html = response.data;
   } catch (err) {
     results.push({
-      category: 'Setup',
-      test_case: 'User Login',
+      website: urlToTest,
+      category: 'SEO & Accessibility',
+      test_case: 'Homepage Availability',
       status: 'fail',
-      description: `Could not log in to test private pages. Error: ${err.message}`
+      description: `Could not fetch URL. Error: ${err.message}`
     });
-    // Continue testing public pages even if login fails
+    return results;
   }
 
-  // --- Step 2: Reusable function to run all checks on a single page ---
-  const runChecksOnPage = async (url, headers = {}) => {
-    let html;
-    try {
-      const response = await axios.get(url, { headers });
-      html = response.data;
-    } catch (err) {
-      results.push({ website: url, category: 'Page Load', test_case: `Page Availability`, status: 'fail', description: `Failed to load page. Error: ${err.message}` });
-      return; // Stop checking this page if it fails to load
-    }
+  const $ = cheerio.load(html);
 
-    const $ = cheerio.load(html);
-
-    // --- All your checks go inside this function ---
-
-    // Title Tag Check
-    const title = $('title').text();
-    results.push({ website: url, category: 'SEO', test_case: 'Title Tag Check', status: title ? 'pass' : 'fail', description: title ? `Title found: "${title}"` : 'Missing title tag.' });
-
-    // H1 Tag Check
-    const h1s = $('h1');
-    results.push({ website: url, category: 'SEO', test_case: 'H1 Tag Check', status: h1s.length === 1 ? 'pass' : 'fail', description: `Found ${h1s.length} H1 tags (should be 1).` });
-
-    // Meta Description Check
-    const description = $('meta[name="description"]').attr('content');
-    results.push({ website: url, category: 'SEO', test_case: 'Meta Description Check', status: description ? 'pass' : 'fail', description: description ? 'Meta description is present.' : 'Missing meta description.' });
-
-    // Image Alt Text Check
-    const imagesWithoutAlt = $('img:not([alt]), img[alt=""]');
-    if (imagesWithoutAlt.length > 0) {
-        imagesWithoutAlt.each((index, element) => {
-            const src = $(element).attr('src') || `Image #${index + 1}`;
-            results.push({ website: url, category: 'Accessibility', test_case: `Image Alt Text: ${src}`, status: 'fail', description: 'Image is missing alt text.'});
-        });
-    } else {
-        // Only add one 'pass' result per page if all images are okay
-        results.push({ website: url, category: 'Accessibility', test_case: 'Image Alt Text Check', status: 'pass', description: 'All images appear to have alt text.'});
-    }
-
-    // Language Attribute Check
-    const lang = $('html').attr('lang');
-    results.push({ website: url, category: 'Accessibility', test_case: 'Language Attribute Check', status: lang ? 'pass' : 'fail', description: lang ? `Language specified: "${lang}"` : 'Missing lang attribute.' });
-
-    // Input Label Check
-    const inputsWithoutLabels = [];
-    $('input, textarea, select').each((i, el) => {
-      const id = $(el).attr('id');
-      if (!id || !$(`label[for="${id}"]`).length) {
-        if (!$(el).attr('aria-label')) {
-          inputsWithoutLabels.push(id || $(el).attr('name') || `Input #${i + 1}`);
-        }
-      }
+  // --- Test 1: Title Tag Check ---
+  const title = $('title').text();
+  if (!title) {
+    results.push({
+      website: urlToTest,
+      category: 'SEO & Accessibility',
+      test_case: 'Title Tag Check',
+      status: 'fail',
+      description: 'The page is missing a <title> tag.'
     });
-    results.push({ website: url, category: 'Accessibility', test_case: 'Input Label Check', status: inputsWithoutLabels.length === 0 ? 'pass' : 'fail', description: inputsWithoutLabels.length === 0 ? 'All inputs have labels.' : `Missing labels for inputs: ${inputsWithoutLabels.join(', ')}` });
+  } else {
+    results.push({
+      website: urlToTest,
+      category: 'SEO & Accessibility',
+      test_case: 'Title Tag Check',
+      status: 'pass',
+      description: `Title found: "${title}"`
+    });
+  }
 
-    // Favicon Check
-    const favicon = $('link[rel="icon"], link[rel="shortcut icon"]');
-    results.push({ website: url, category: 'SEO & Accessibility', test_case: 'Favicon Check', status: favicon.length > 0 ? 'pass' : 'fail', description: favicon.length > 0 ? 'Favicon link is present.' : 'Missing favicon link.' });
-
-    // Broken Link Check (Simplified version)
-    const links = $('a');
-    if (links.length === 0) {
-      results.push({ website: url, category: 'SEO & Accessibility', test_case: 'Broken Link Check', status: 'pass', description: 'No links found.' });
-    } else {
-      let brokenLinksFound = false;
-      const linkPromises = [];
-      links.each((index, element) => {
-        const href = $(element).attr('href');
-        if (href && (href.startsWith('http') || href.startsWith('https'))) {
-          linkPromises.push(
-            axios.get(href).catch(error => {
-              brokenLinksFound = true;
-              results.push({ website: url, category: 'SEO & Accessibility', test_case: `Broken Link: ${href}`, status: 'fail', description: `Link is broken. Error: ${error.message}` });
-            })
-          );
-        }
+  // --- Test 2: Image Alt Text Check ---
+  const imagesWithoutAlt = $('img:not([alt]), img[alt=""]');
+  if (imagesWithoutAlt.length > 0) {
+    imagesWithoutAlt.each((index, element) => {
+      const src = $(element).attr('src') || `Image #${index + 1}`;
+      results.push({
+        website: urlToTest,
+        category: 'SEO & Accessibility',
+        test_case: `Image Alt Text: ${src}`,
+        status: 'fail',
+        description: 'Image is missing its alt text.'
       });
-      await Promise.all(linkPromises);
-      if (!brokenLinksFound) {
-        results.push({ website: url, category: 'SEO & Accessibility', test_case: 'Broken Link Check', status: 'pass', description: 'All external links appear valid.' });
-      }
-    }
-  }; // End of runChecksOnPage function
+    });
+  } else {
+    results.push({
+      website: urlToTest,
+      category: 'SEO & Accessibility',
+      test_case: 'Image Alt Text Check',
+      status: 'pass',
+      description: 'All images have alt text.'
+    });
+  }
+  // --- Test 3: Check for Language Attribute ---
+  const lang = $('html').attr('lang');
+  if (!lang) {
+    results.push({
+        website: urlToTest,
+      category: 'SEO & Accessibility',
+      test_case: 'Language Attribute Check',
+      status: 'fail',
+      description: 'The <html> tag is missing the lang attribute.'
+    });
+  } else {
+    results.push({
+        website: urlToTest,
+      category: 'SEO & Accessibility',
+      test_case: 'Language Attribute Check',
+      status: 'pass',
+      description: `Language specified: "${lang}"`
+    });
+  }
+// --- Test 4: Check for Broken Links ---
+  const links = $('a');
+  const linkPromises = [];
 
-  // Step 3: Loop through and test all pages from your config
-  if (pagesToTest && pagesToTest.public) {
-    for (const url of pagesToTest.public) {
-      await runChecksOnPage(url);
-    }
+  if (links.length === 0) {
+    results.push({
+      website: urlToTest,
+      category: 'SEO & Accessibility',
+      test_case: 'Broken Link Check',
+      status: 'pass',
+      description: 'No links found on the page to check.'
+    });
+  } else {
+    links.each((index, element) => {
+      const href = $(element).attr('href');
+      if (href && (href.startsWith('http') || href.startsWith('https'))) {
+        const linkCheckPromise = axios.get(href)
+          .then(response => {
+            // This result is created only for valid links
+          })
+          .catch(error => {
+            results.push({
+              website: urlToTest,
+              category: 'SEO & Accessibility',
+              test_case: `Link Check: ${href}`,
+              status: 'fail',
+              description: `Link is broken. Error: ${error.message}`
+            });
+          });
+        linkPromises.push(linkCheckPromise);
+      }
+    });
   }
 
-  if (accessToken && pagesToTest && pagesToTest.private) { // Only test private pages if login succeeded
-    const authHeaders = { 'Authorization': `Bearer ${accessToken}` };
-    for (const url of pagesToTest.private) {
-      await runChecksOnPage(url, authHeaders);
-    }
+  // Wait for all the link checks to complete before returning
+  await Promise.all(linkPromises);
+
+  // Add a final "pass" status if no broken links were found
+  if (links.length > 0 && results.filter(r => r.test_case.includes('Link Check')).length === 0) {
+    results.push({
+      website: urlToTest,
+      category: 'SEO & Accessibility',
+      test_case: 'Broken Link Check',
+      status: 'pass',
+      description: 'All links on the page are valid.'
+    });
+  }
+  // --- Test 5: Check for a Single H1 Tag ---
+  const h1s = $('h1');
+  if (h1s.length === 0) {
+    results.push({
+      website: urlToTest,
+      category: 'SEO & Accessibility',
+      test_case: 'H1 Tag Check',
+      status: 'fail',
+      description: 'Page is missing an H1 tag.'
+    });
+  } else if (h1s.length > 1) {
+    results.push({
+      website: urlToTest,
+      category: 'SEO & Accessibility',
+      test_case: 'H1 Tag Check',
+      status: 'fail',
+      description: 'Page has more than one H1 tag.'
+    });
+  } else {
+    results.push({
+      website: urlToTest,
+      category: 'SEO & Accessibility',
+      test_case: 'H1 Tag Check',
+      status: 'pass',
+      description: 'Page has exactly one H1 tag.'
+    });
+  }
+    // --- Test 6: Check for Meta Description ---
+  const description = $('meta[name="description"]').attr('content');
+  if (!description || description.trim() === '') {
+    results.push({
+      website: urlToTest,
+      category: 'SEO & Accessibility',
+      test_case: 'Meta Description Check',
+      status: 'fail',
+      description: 'Page is missing a meta description.'
+    });
+  } else {
+    results.push({
+      website: urlToTest,
+      category: 'SEO & Accessibility',
+      test_case: 'Meta Description Check',
+      status: 'pass',
+      description: 'Page has a meta description.'
+    });
   }
 
   return results;

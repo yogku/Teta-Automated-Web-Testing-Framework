@@ -105,29 +105,21 @@
         "testName": "Form Test (Success): Register user with valid data",
         "endpoint": "/register",
         "method": "POST",
-         "payload": {
-          "username": "{{unique_username}}",
-          "password": "{{test_password}}"
-        },
+        "payload": { "username": "new_valid_user3", "password": "Password123" },
         "expectedStatus": 201
       },
       {
         "testName": "Form Test (Fail): Register with a short password",
         "endpoint": "/register",
         "method": "POST",
-        "payload": {
-          "username": "testuser_short_password",
-          "password": "shor"
-        },
+        "payload": { "username": "shortpass", "password": "123" },
         "expectedStatus": 400
       },
       {
         "testName": "Form Test (Failure): Register user with missing password",
         "endpoint": "/register",
         "method": "POST",
-        "payload": {
-          "username": "testuser_no_password"
-        },
+        "payload": {"username": "mikasa"},
         "expectedStatus": 400
       }
     ]

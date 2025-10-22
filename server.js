@@ -92,6 +92,7 @@ app.get("/run-tests", async (req, res) => {
   }
 
   res.redirect("/results");
+  process.exit(0); // stop the server after tests complete
 });
 
 // Route to display results

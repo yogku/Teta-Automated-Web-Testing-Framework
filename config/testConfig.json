@@ -1,7 +1,15 @@
 {
   "backendUrl": "http://localhost:3008",
-  "frontendUrl": "http://localhost:5501",
-  "homepageUrl": "http://127.0.0.1:5501/auth.html",
+  "pagesToTest": {
+    "public": [
+      "http://127.0.0.1:5500/frontend/index.html",
+      "http://127.0.0.1:5500/frontend/auth.html"
+    ],
+    "private": [
+      "http://127.0.0.1:5500/frontend/cart.html",
+      "http://127.0.0.1:5500/frontend/checkout.html"
+    ]
+  },
   "customTests": {
     
     "api": [

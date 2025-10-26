@@ -30,7 +30,7 @@ async function runTest(testCase, url, method, expectedStatus, data = null, heade
       description: statusCheck
         ? `Expected status ${expectedStatus}, got ${res.status}`
         : `Expected status ${expectedStatus}, but got ${res.status}`,
-      data: res.data // <-- THE ADDED PROPERTY
+      data: res.data 
     };
 
   } catch (err) {

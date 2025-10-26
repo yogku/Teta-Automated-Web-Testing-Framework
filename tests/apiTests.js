@@ -7,7 +7,7 @@ const axios = require("axios");
  */
 function generateUniqueUser() {
   const username = `test_user_${Date.now()}`;
-  const password = "test_password";
+  const password = "Testpassword123"; 
   return { username, password };
 }
 
@@ -93,6 +93,7 @@ module.exports = async function apiTests(config) {
 
     // Capture token and user ID from the *actual test result*
     if (testCase.testName === "Test 2: Login with valid credentials" && testResult.status === "pass") {
+      console.log('Login Response Body:', testResult.data);
      
       if (testResult.data && testResult.data.accessToken && testResult.data.userId) {
         testData.accessToken = testResult.data.accessToken;

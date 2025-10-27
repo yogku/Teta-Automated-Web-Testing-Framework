@@ -3,7 +3,3 @@ node_modules/
 results/
 allure-results/
 allure-report/
-.env
-node_modules/
-results/
-allure-results/

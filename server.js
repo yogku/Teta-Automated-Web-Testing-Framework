@@ -106,6 +106,8 @@ app.get("/results", (req, res) => {
 // Global fallback for any uncaught errors
 app.use((err, req, res, next) => {
   console.error("Unhandled Error:", err.stack);
+  // An exit in case saving fails
+    process.exit(1); // Exit with an error code
   res.status(500).send("Something went wrong.");
 });
 
@@ -117,6 +119,8 @@ app.get('/favicon.ico', (req, res) => {
 
 app.get("/", (req, res) => {
   res.redirect("/run-tests");
+  //TO MAKE THE SCRIPT EXIT AFTER TESTS ARE DONE
+  process.exit(0);
 });
 
 app.listen(3000, () => console.log("Server running on http://localhost:3000"));

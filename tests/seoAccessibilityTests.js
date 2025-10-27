@@ -3,14 +3,13 @@ const cheerio = require('cheerio');
 
 module.exports = async function seoAccessibilityTests(config) {
   const results = [];
-  // Read the correct configuration object
-  const { backendUrl, pagesToTest } = config; 
+  const { backendUrl, pagesToTest } = config; // Read the correct config object
   let accessToken = null;
 
-  // Step 1: Log in to get a token for private pages
+  // --- Step 1: Log in to get a token for private pages ---
   try {
     const loginResponse = await axios.post(`${backendUrl}/login`, {
-      username: 'erenYager', // Use a valid, existing user
+      username: 'erenYager', // Use a valid, existing user for testing
       password: 'Eren@123'
     });
     accessToken = loginResponse.data.accessToken;
@@ -21,10 +20,10 @@ module.exports = async function seoAccessibilityTests(config) {
       status: 'fail',
       description: `Could not log in to test private pages. Error: ${err.message}`
     });
-    // Continue to test public pages even if login fails
+    // Continue testing public pages even if login fails
   }
 
-  // Step 2: Create a reusable function to run all checks on a single page
+  // --- Step 2: Reusable function to run all checks on a single page ---
   const runChecksOnPage = async (url, headers = {}) => {
     let html;
     try {
@@ -45,7 +44,11 @@ module.exports = async function seoAccessibilityTests(config) {
 
     // H1 Tag Check
     const h1s = $('h1');
-    results.push({ website: url, category: 'SEO', test_case: 'H1 Check', status: h1s.length === 1 ? 'pass' : 'fail', description: `Found ${h1s.length} H1 tags (should be 1).` });
+    results.push({ website: url, category: 'SEO', test_case: 'H1 Tag Check', status: h1s.length === 1 ? 'pass' : 'fail', description: `Found ${h1s.length} H1 tags (should be 1).` });
+
+    // Meta Description Check
+    const description = $('meta[name="description"]').attr('content');
+    results.push({ website: url, category: 'SEO', test_case: 'Meta Description Check', status: description ? 'pass' : 'fail', description: description ? 'Meta description is present.' : 'Missing meta description.' });
 
     // Image Alt Text Check
     const imagesWithoutAlt = $('img:not([alt]), img[alt=""]');
@@ -55,16 +58,13 @@ module.exports = async function seoAccessibilityTests(config) {
             results.push({ website: url, category: 'Accessibility', test_case: `Image Alt Text: ${src}`, status: 'fail', description: 'Image is missing alt text.'});
         });
     } else {
+        // Only add one 'pass' result per page if all images are okay
         results.push({ website: url, category: 'Accessibility', test_case: 'Image Alt Text Check', status: 'pass', description: 'All images appear to have alt text.'});
     }
-    
+
     // Language Attribute Check
     const lang = $('html').attr('lang');
     results.push({ website: url, category: 'Accessibility', test_case: 'Language Attribute Check', status: lang ? 'pass' : 'fail', description: lang ? `Language specified: "${lang}"` : 'Missing lang attribute.' });
-
-    // Meta Description Check
-    const description = $('meta[name="description"]').attr('content');
-    results.push({ website: url, category: 'SEO', test_case: 'Meta Description Check', status: description ? 'pass' : 'fail', description: description ? 'Meta description is present.' : 'Page is missing a meta description.' });
 
     // Input Label Check
     const inputsWithoutLabels = [];
@@ -80,11 +80,31 @@ module.exports = async function seoAccessibilityTests(config) {
 
     // Favicon Check
     const favicon = $('link[rel="icon"], link[rel="shortcut icon"]');
-    results.push({ website: url, category: 'SEO & Accessibility', test_case: 'Favicon Check', status: favicon.length > 0 ? 'pass' : 'fail', description: favicon.length > 0 ? 'Favicon link is present.' : 'Page is missing a favicon link.' });
+    results.push({ website: url, category: 'SEO & Accessibility', test_case: 'Favicon Check', status: favicon.length > 0 ? 'pass' : 'fail', description: favicon.length > 0 ? 'Favicon link is present.' : 'Missing favicon link.' });
 
-    // Broken Link Check (Simplified version without async calls inside loop for clarity)
-    // Add the more complex broken link check here if needed
-
+    // Broken Link Check (Simplified version)
+    const links = $('a');
+    if (links.length === 0) {
+      results.push({ website: url, category: 'SEO & Accessibility', test_case: 'Broken Link Check', status: 'pass', description: 'No links found.' });
+    } else {
+      let brokenLinksFound = false;
+      const linkPromises = [];
+      links.each((index, element) => {
+        const href = $(element).attr('href');
+        if (href && (href.startsWith('http') || href.startsWith('https'))) {
+          linkPromises.push(
+            axios.get(href).catch(error => {
+              brokenLinksFound = true;
+              results.push({ website: url, category: 'SEO & Accessibility', test_case: `Broken Link: ${href}`, status: 'fail', description: `Link is broken. Error: ${error.message}` });
+            })
+          );
+        }
+      });
+      await Promise.all(linkPromises);
+      if (!brokenLinksFound) {
+        results.push({ website: url, category: 'SEO & Accessibility', test_case: 'Broken Link Check', status: 'pass', description: 'All external links appear valid.' });
+      }
+    }
   }; // End of runChecksOnPage function
 
   // Step 3: Loop through and test all pages from your config

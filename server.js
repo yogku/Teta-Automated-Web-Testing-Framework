@@ -25,6 +25,7 @@ app.set("views", path.join(__dirname, "views"));
 // Route to run all tests
 app.get("/run-tests", async (req, res) => {
   const results = [];
+  console.log("--- TEST RUN STARTING ---");
 
   try {
     if (typeof apiTests === "function") {
@@ -77,12 +78,6 @@ app.get("/run-tests", async (req, res) => {
   }
 
   try {
-    // Create results dir if it does not exist
-    const resultsDir = path.join(__dirname, "results");
-    if (!fs.existsSync(resultsDir)) {
-      fs.mkdirSync(resultsDir, { recursive: true });
-    }
-    
     // Save the results to the file inside the new directory
     fs.writeFileSync(path.join(resultsDir, "result-log.json"), JSON.stringify(results, null, 2));
 
@@ -90,14 +85,17 @@ app.get("/run-tests", async (req, res) => {
     console.error("Failed to save results:", err.message);
     return res.status(500).send("Error writing results to file.");
   }
-
+  
+  console.log("--- TEST RUN COMPLETE ---");
   res.redirect("/results");
+  
 });
 
 // Route to display results
 app.get("/results", (req, res) => {
   try {
-    const data = JSON.parse(fs.readFileSync("results/result-log.json"));
+    // Fixed the path to correctly find the results file
+    const data = JSON.parse(fs.readFileSync(path.join(__dirname, "results", "result-log.json")));
     res.render("results", { data });
   } catch (err) {
     console.error("Failed to load results:", err.message);
@@ -109,6 +107,12 @@ app.get("/results", (req, res) => {
 app.use((err, req, res, next) => {
   console.error("Unhandled Error:", err.stack);
   res.status(500).send("Something went wrong.");
+});
+
+// Handle favicon.ico requests to prevent triggering tests
+// This is still needed to prevent the tests from running twice
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end(); // 204 No Content
 });
 
 app.get("/", (req, res) => {
